@@ -11,8 +11,9 @@
 - ✅ AI 기반 피드백 및 자동 스크립트 배포 기능 통합
 
 ## 🧱 시스템 아키텍처  
-![System Architecture](![image](https://github.com/user-attachments/assets/9690fe3c-97d8-46d5-80b2-ca13ac75ad4a)
-)  
+![System Architecture]
+![image](https://github.com/user-attachments/assets/1aecff0e-c401-4623-8ef2-84e4d9933fd5)
+
 <설명: 정적/동적 분석 → 결과 분류 → 자동화 스크립트 → AI 모듈 → Master/Worker 노드 실행 → Kibana 시각화>
 
 ![image](https://github.com/user-attachments/assets/568621ea-5a75-4498-9043-179c476eb507)
