@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: suricata
+  namespace: ${NAMESPACE}
+spec:
+  selector:
+    matchLabels:
+      app: suricata
+  template:
+    metadata:
+      labels:
+        app: suricata
+    spec:
+      hostNetwork: true
+
+      containers:
+      - name: suricata
+        image: jasonish/suricata:latest
+
+        securityContext:
+          privileged: true
+
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/suricata/suricata.yaml
+          subPath: suricata.yaml
+
+        - name: rules-volume
+          mountPath: /etc/suricata/rules/suricata.rules
+          subPath: suricata.rules
+
+        - name: varlog
+          mountPath: /var/log/suricata
+
+        args: ["-c", "/etc/suricata/suricata.yaml", "-i", "${INTERFACE}"]
+
+      volumes:
+      - name: config-volume
+        configMap:
+          name: suricata-config
+          items:
+          - key: suricata.yaml
+            path: suricata.yaml
+
+      - name: rules-volume
+        configMap:
+          name: suricata-config
+          items:
+          - key: suricata.rules
+            path: suricata.rules
+
+      - name: varlog
+        hostPath:
+          path: /var/log/suricata
+          type: DirectoryOrCreate

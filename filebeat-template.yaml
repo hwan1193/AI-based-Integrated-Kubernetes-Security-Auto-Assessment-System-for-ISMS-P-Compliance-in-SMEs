@@ -1,0 +1,148 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: filebeat-config
+  namespace: ${NAMESPACE}
+  labels:
+    k8s-app: filebeat
+data:
+  filebeat.yml: |-
+    filebeat.inputs:
+    - type: container
+      paths:
+        - /var/log/containers/*falco*.log
+      fields:
+        custom_index: "falco"
+      fields_under_root: true
+      processors:
+        - add_kubernetes_metadata:
+            matchers:
+              - logs_path:
+                  logs_path: "/var/log/containers/"
+        - decode_json_fields:
+            fields: ["message"]
+            process_array: false
+            target: "decoded"
+            overwrite_keys: true
+
+    - type: log
+      paths:
+        - /var/log/suricata/eve.json
+      json.keys_under_root: true
+      json.add_error_key: true
+      fields:
+        custom_index: "suricata"
+      fields_under_root: true
+
+    output.elasticsearch:
+      hosts: ["https://211.188.52.0:9200"]
+      username: "elastic"
+      password: "voidtrace!@#"
+      ssl.verification_mode: none
+      indices:
+        - index: "falco-%{+yyyy.MM.dd}"
+          when.equals:
+            custom_index: "falco"
+        - index: "suricata-%{+yyyy.MM.dd}"
+          when.equals:
+            custom_index: "suricata"
+
+    setup.ilm.enabled: false
+    setup.template.type: index_template
+    setup.kibana:
+      host: "https://211.188.52.0:5601"
+      ssl.verification_mode: none
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: filebeat
+  namespace: ${NAMESPACE}
+  labels:
+    k8s-app: filebeat
+spec:
+  selector:
+    matchLabels:
+      k8s-app: filebeat
+  template:
+    metadata:
+      labels:
+        k8s-app: filebeat
+    spec:
+      serviceAccountName: filebeat
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: filebeat
+        image: docker.elastic.co/beats/filebeat:8.18.0
+        args: ["-c", "/etc/filebeat.yml", "-e"]
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        securityContext:
+          runAsUser: 0
+          privileged: true
+        resources:
+          limits:
+            memory: 200Mi
+            cpu: 200m
+        volumeMounts:
+        - name: config
+          mountPath: /etc/filebeat.yml
+          subPath: filebeat.yml
+        - name: varlog
+          mountPath: /var/log
+        - name: containers
+          mountPath: /var/lib/docker/containers
+          readOnly: true
+        - name: suricatalog
+          mountPath: /var/log/suricata
+          readOnly: true
+      volumes:
+      - name: config
+        configMap:
+          name: filebeat-config
+      - name: varlog
+        hostPath:
+          path: /var/log
+      - name: containers
+        hostPath:
+          path: /var/lib/docker/containers
+      - name: suricatalog
+        hostPath:
+          path: /var/log/suricata
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: filebeat
+  namespace: ${NAMESPACE}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: filebeat
+rules:
+- apiGroups: [""]
+  resources:
+    - nodes
+    - namespaces
+    - pods
+  verbs:
+    - get
+    - list
+    - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: filebeat
+subjects:
+- kind: ServiceAccount
+  name: filebeat
+  namespace: ${NAMESPACE}
+roleRef:
+  kind: ClusterRole
+  name: filebeat
+  apiGroup: rbac.authorization.k8s.io

@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: suricata-config
+  namespace: ${NAMESPACE}
+data:
+  suricata.yaml: |
+    %YAML 1.1
+    ---
+    vars:
+      address-groups:
+        HOME_NET: "[${HOME_NET}]"
+    af-packet:
+      - interface: ${INTERFACE}
+        cluster-id: 99
+        cluster-type: cluster_flow
+        defrag: yes
+    outputs:
+      - eve-log:
+          enabled: yes
+          filetype: regular
+          filename: /var/log/suricata/eve.json
+          types:
+            - alert
+            - http
+            - dns
+            - tls
+            - flow
+  suricata.rules: |
+    alert ip any any -> any any (msg:"Test Alert - Any IP Packet"; sid:1000001; rev:1;)
