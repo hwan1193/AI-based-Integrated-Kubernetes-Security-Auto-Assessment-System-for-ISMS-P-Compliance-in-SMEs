@@ -45,6 +45,17 @@
 4. Kubernetes DaemonSet을 통한 자동 배포  
 5. Kibana를 통한 시각화 및 실시간 알림
 
+# HTML 보고서
+http://223.130.138.26:5000/
+
+![image](https://github.com/user-attachments/assets/907c259d-9846-4235-a988-b302880aa379)
+
+![image](https://github.com/user-attachments/assets/e5f8c66a-9f9a-4457-b9cb-810ef0bb329f)
+
+![image](https://github.com/user-attachments/assets/65cd6e6a-537f-4d4a-8f56-6f23ef36a9e4)
+
+![image](https://github.com/user-attachments/assets/ad4f27b4-6f67-4849-b07f-c19f730c542b)
+
 ## 🚀 빠른 시작 예시
 
 ```bash
@@ -57,16 +68,8 @@ kubectl apply -f filebeat-kube-bench.yaml
 # 로그 확인
 kubectl logs -n kube-system -l app=kube-bench
 
-# HTML 보고서
-http://223.130.138.26:5000/
 
-![image](https://github.com/user-attachments/assets/907c259d-9846-4235-a988-b302880aa379)
 
-![image](https://github.com/user-attachments/assets/e5f8c66a-9f9a-4457-b9cb-810ef0bb329f)
-
-![image](https://github.com/user-attachments/assets/65cd6e6a-537f-4d4a-8f56-6f23ef36a9e4)
-
-![image](https://github.com/user-attachments/assets/ad4f27b4-6f67-4849-b07f-c19f730c542b)
 
 ![image](https://github.com/user-attachments/assets/ac69c267-1e00-453b-bb20-c52d08380863)
 
