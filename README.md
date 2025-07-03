@@ -58,6 +58,9 @@ http://223.130.138.26:5000/
 
 ![image](https://github.com/user-attachments/assets/ac69c267-1e00-453b-bb20-c52d08380863)
 
+# 설문 조사 관련 링크
+https://drive.google.com/drive/folders/13SbquYZGcsDw-xAaEarchd2sRDcBrdF0
+
 ## 🚀 빠른 시작 예시
 
 ```bash
